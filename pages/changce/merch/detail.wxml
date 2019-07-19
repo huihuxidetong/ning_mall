@@ -1,0 +1,163 @@
+<view class="page">
+    <view bindtap="goBack" style="position: absolute;width: 100%;height:100%;z-index:999;background:#ccc;opacity:0.7;text-align:center;padding-top:50%;color:#f00" wx:if="{{merch.status==2}}">店铺已暂停>></view>
+    <view class="detail-hard" style="background:#ff9900">
+        <view class="fui-list noclick">
+            <view class="fui-list-media">
+                <image class="round" src="{{merch.logo}}" wx:if="{{merch.logo}}"></image>
+                <image class="round" src="/static/images/noface.png" wx:else></image>
+            </view>
+            <view class="fui-list-inner">
+                <view class="subtitle">{{merch.merchname}}</view>
+                <view class="text cart-option">
+                    <view class="choose-option" wx:if="{{merch.salecate}}">主营：{{merch.salecate}}</view>
+                </view>
+            </view>
+        </view>
+    </view>
+	  <view class="fui-header">
+        <view class="searchbar">
+            <icon size="18" type="search"></icon>
+            <input bindconfirm="bindSearch" bindinput="bindInput" focus="{{focusin}}" name="search" placeholder="搜索店铺内宝贝" value="{{params.keywords}}"></input>
+        </view>
+        <view bindtap="bindback" class="cancel" wx:if="{{fromsearch}}">取消</view>
+    </view>
+    <view class="detail-tab">
+        <navigator bindtap="clickall" class="{{isnew==0&&isrecommand==0?'on':''}}">
+            <text>{{merch.allgoodsnum}}</text>
+            <text>全部商品</text>
+        </navigator>
+        <navigator bindtap="clickrec" class="{{isrecommand==1?'on':''}}">
+            <text>{{merch.recgoodsnum}}</text>
+            <text>推荐</text>
+        </navigator>
+        <navigator bindtap="clicknew" class="{{isnew==1?'on':''}}">
+            <text>{{merch.newgoodsnum}}</text>
+            <text>新上</text>
+        </navigator>
+        <navigator url="/pages/changce/merch/intro?id={{merchid}}">
+            <image src="/pages/changce/images/shop.png"></image>
+            <text>店铺简介</text>
+        </navigator>
+    </view>
+	<view class="sort">
+        <view bindtap="bindSort" class="item {{params.order==''||!params.order?'on':''}}" data-order="">
+            <view class="text">综合</view>
+        </view>
+        <view bindtap="bindSort" class="item {{params.order=='sales'?'on':''}}" data-order="sales">
+            <view class="text">销量</view>
+        </view>
+        <view bindtap="bindSort" class="item item-price {{params.order=='minprice'?'on':''}}" data-order="minprice">
+            <view class="text">价格 <image class="icon" src="/static/images/icon/listsort{{listorder}}.png"></image>
+            </view>
+        </view>
+        <view bindtap="showFilter" class="item {{isfilter?'on':''}}">
+            <view class="text">筛选 <image class="icon small" src="{{isfilter?'/static/images/icon-red/filter.png':'/static/images/icon/filter.png'}}"></image>
+            </view>
+        </view>
+		<view bindtap="changeMode" class="item">
+		<text class="icon icox {{listmode==''?'icox-app':'icox-viewlist'}}"></text>
+		</view>
+    </view>
+    <view class="fui-goods-group {{listmode}}">
+        <view class="fui-goods-item" wx:for="{{list}}">
+            <navigator hoverClass="none" url="/pages/goods/detail/index?id={{item.id}}">
+                <view class="image" style="background-image:url({{item.thumb}})"></view>
+            </navigator>
+            <view class="detail">
+                <navigator hoverClass="none" url="/pages/goods/detail/index?id={{item.id}}">
+                    <view class="name">{{item.title}} </view>
+                </navigator>
+                <view class="price">
+                    <view class="text" wx:if="{{0== hidegoodsprice}}">￥{{item.minprice}}</view>
+                    <view class="text" wx:if="{{1== hidegoodsprice && 0 >= level}}">￥???</view>
+                    <view class="text" wx:if="{{1== hidegoodsprice && level >0 }}">￥{{item.minprice}}</view>
+					          <view bindtap="selectPicker" data-buytype="buy" data-id="{{item.id}}" wx:if="{{1== hidegoodsprice && level >0 }}">
+                      <text class="buy icox icox-gouwuche buybtnbtn buybtn-5" style="color:#ff5555"></text>
+					          </view> 
+                    <view bindtap="selectPicker" data-buytype="buy" data-id="{{item.id}}" wx:if="{{0== hidegoodsprice }}">
+                      <text class="buy icox icox-gouwuche buybtnbtn buybtn-5" style="color:#ff5555"></text>
+					          </view>  	  
+                    <view wx:if="{{1== hidegoodsprice && 0 >= level}}">
+                      <block>仅限会员购买</block>
+					          </view>   	  
+                </view>
+            </view>
+        </view>
+    </view>
+ <view class="model" wx:if="{{modelShow}}">
+        <view class="inner1">
+            <view class="title">用户未授权</view>
+            <view class="subtitle">您需要先允许【用户授权】，才能进行后续操作哦~</view>
+            <view class="model-btns">
+                <view bindtap="cancelclick" class="cancel">取消</view>
+                <button bindgetuserinfo="userinfo" bindtap="cancelclick" openType="getUserInfo">去授权</button>
+            </view>
+        </view>
+    </view>
+    <include src="/pages/common/goods-picker.wxml"></include>
+    <view class="fui-toast {{FoxUIToast.show?'in':'out'}}">
+      <view class="text">{{FoxUIToast.text}}</view>
+    </view>
+    <view bindtap="emptyActive" class="nav-mask" 
+    style="{{active?'display:block':''}}  ">
+    </view>
+</view>
+<view class="shopCar2 footercart">
+    <view bindtap="shopCarList" class="carIcon">
+        <icon class="shopCarImg icox icox-cartfill"></icon>
+        <i wx:if="{{main.total}}">{{main.total}}</i>
+    </view>
+    <view class="total">
+        <view>￥{{main.totalprice}}</view>
+        <view>优惠信息请至结算页面查看</view>
+    </view>
+    <view bindtap="gopay">去结算</view>
+</view>
+<view class="{{clickCar?'shopCarList':'shopCarList displayNo'}}">
+    <view bindtap="shopCarHid" style="flex:1"></view>
+    <view>
+        <view class="flex scListTit">
+            <text>购物车</text>
+            <text bindtap="clearShopCartFn">清空</text>
+        </view>
+        <scroll-view scrollY class="footerList">
+            <view class="carList" wx:if="{{cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]!=0}}" wx:for="{{main.list}}" wx:for-item="goods" wx:key="unique">
+                <view class="goodsMsg">
+                    <view>{{goods.title}}</view>
+                    <view>{{goods.optiontitle?goods.optiontitle:''}}</view>
+                </view>
+                <view class="addShopCar flex" wx:if="{{goods.hidegoodsprice==0}}">
+                    <icon bindtap="cartaddcart" class="icox icox-offline" data-add="reduce" data-goodsid="{{goods.goodsid}}" data-id="{{goods.optionid}}" data-min="{{goods.minbuy}}"     
+                    data-num="{{cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]>0?cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]:goods.total}}"></icon>
+                    <text>{{cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]>0?cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]:goods.total}}</text>
+                    <icon bindtap="cartaddcart" class="icox icox-addition_fill" data-add="add" data-goodsid="{{goods.goodsid}}" data-id="{{goods.optionid}}" data-maxnum="{{goods.maxbuy}}                     "data-store="{{goods.stock}}"></icon>
+                </view>
+                <view class="addShopCar flex" wx:if="{{goods.hidegoodsprice==1 && goods.level>0}}">
+                    <icon bindtap="cartaddcart" class="icox icox-offline" data-add="reduce" data-goodsid="{{goods.goodsid}}" data-id="{{goods.optionid}}" data-min="{{goods.minbuy}}"     
+                    data-num="{{cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]>0?cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]:goods.total}}"></icon>
+                    <text>{{cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]>0?cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]:goods.total}}</text>
+                    <icon bindtap="cartaddcart" class="icox icox-addition_fill" data-add="add" data-goodsid="{{goods.goodsid}}" data-id="{{goods.optionid}}" data-maxnum="{{goods.maxbuy}}                     "data-store="{{goods.stock}}"></icon>
+                </view>
+
+                  <view  class="addShopCar flex" wx:if="{{goods.hidegoodsprice==1 && 0>=goods.level}}">
+                    <text>仅限会员购买</text>
+					        </view>   	
+                <view class="money">￥{{goods.marketprice}}</view>
+            </view>
+            <text class="noGoods" wx:if="{{!main.list.length}}">暂时没有商品喔~</text>
+        </scroll-view>
+        <view class="tips" wx:if="{{main.list.length}}">Tips：加入购物车后请尽快下单哦~</view>
+        <view class="shopCar2">
+            <view bindtap="shopCarHid" class="carIcon">
+                <icon class="shopCarImg icox icox-cartfill"></icon>
+                <i wx:if="{{main.list.length}}">{{main.total}}</i>
+            </view>
+            <view class="total">
+                <view>￥{{main.totalprice}}</view>
+                <view>优惠信息请至结算页面查看</view>
+            </view>
+            <view bindtap="gopay">去结算</view>
+        </view>
+    </view>
+</view>
+<view class="good_box" hidden="{{hide_good_box}}" style="left: {{bus_x}}px; top: {{bus_y}}px;"></view>
