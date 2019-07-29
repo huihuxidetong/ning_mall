@@ -241,7 +241,7 @@
 }
 
 .total+view {
-    background: #ff9d55;
+    background: #808083;
     width: 200rpx;
     text-align: center;
     line-height: 98rpx;
@@ -574,5 +574,4 @@ button:after {
     text-align: center;
     border: 0;
     font-size: 28rpx;
-    line-
 }

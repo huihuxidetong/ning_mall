@@ -495,29 +495,106 @@
     </view>
     <view wx:if="{{usediypage==false}}">
         <view class="fui-navbar bottom-buttons {{iphonexnavbar}}" wx:if="{{goods.canbuy}}">
-            <view bindtap="favorite" class="nav-item favorite-item" wx:if="{{!limits}}">
+          <view class="shopCar2 footercart">
+           <view bindtap="favorite" class="nav-item favorite-item" wx:if="{{!limits}}">
                 <view class="icox {{goods.isfavorite?'icox-likefill':'icox-like'}}"></view>
                 <view class="label">关注</view>
             </view>
-            <view bindtap="favorite" class="nav-item favorite-item {{goods.isfavorite?'active':''}}" data-isfavorite="{{goods.isfavorite?1:0}}" wx:if="{{goods.customer!=1&&limits}}">
+            <view bindtap="favorite" class="nav-item favorite-item {{goods.isfavorite?'active':''}}" 
+            data-isfavorite="{{goods.isfavorite?1:0}}" wx:if="{{goods.customer!=1&&limits}}">
                 <view class="icox {{goods.isfavorite?'icox-likefill':'icox-like'}}"></view>
                 <view class="label">关注</view>
             </view>
             <button class="nav-item customer-item" openType="contact" sessionFrom="weapp" showMessageCard="true" wx:if="{{goods.customer==1&&limits}}">
-                <view class="icox icox-customerservice"></view>
-                <view class="label">客服</view>
+              <view class="icox icox-customerservice"></view>
+              <view class="label">客服</view>
             </button>
-            <navigator class="nav-item external" url="/pages/changce/merch/detail?id={{goods.merchid}}">
-                <view class="icox icox-shop1"></view>
-                <view class="label">店铺</view>
+            <navigator class="nav-item external" url="/pages/changce/merch/detail?id={{goods.merchid}}&&merchid={{goods.merchid}}">
+              <view class="icox icox-shop1"></view>
+              <view class="label">店铺</view>
             </navigator>
-            <view bindtap="menucart" class="nav-item cart-item" id="menucart">
-                <view class="badge {{goods.cartount<=0?'out':'in'}}" wx:if="{{goods.cartcount&&limits}}">{{goods.cartcount}}</view>
-                <view class="icox icox-cart1"></view>
-                <view class="label">购物车</view>
+            <view bindtap="shopCarList" class="nav-item cart-item" id="menucart">
+              <view class="badge {{cartount<=0?'out':'in'}}" wx:if="{{cartcount&&limits}}">{{cartcount}}</view>
+              <view class="icox icox-cart1"></view>
+              <view class="label">购物车</view>
             </view>
-            <view bindtap="selectPicker" class="nav-item btn cartbtn" data-buytype="cart" data-id="{{goods.id}}" data-tap="{{active}}" wx:if="{{goods.canAddCart&&goods.type!=9}}">加入购物车</view>
-            <view bindtap="selectPicker" class="nav-item btn buybtn" data-buytype="buy" data-id="{{goods.id}}" data-tap="{{active}}">立刻购买</view>
+            <view bindtap="selectPicker" class="nav-item btn cartbtn" 
+              data-buytype="cart" data-id="{{goods.id}}" data-tap="{{active}}" wx:if="{{goods.canAddCart&&goods.type!=9}}">加入购物车</view>
+          </view>
+
+            <view class="{{clickCar?'shopCarList':'shopCarList displayNo'}}">
+              <view bindtap="shopCarHid" style="flex:1"></view>
+              <view>
+                <view class="flex scListTit">
+                    <text>购物车</text>
+                    <text bindtap="clearShopCartFn">清空</text>
+                </view>
+                <scroll-view scrollY class="footerList">
+                    <view class="carList" wx:if="{{merch.list.length}}" wx:for="{{merch.list}}" wx:for-item="goods" wx:key="unique">
+                        <view class="goodsMsg">
+                            <view>{{goods.title}}</view>
+                            <view>{{goods.optiontitle?goods.optiontitle:''}}</view>
+                        </view>
+                        <view class="addShopCar flex" wx:if="{{goods.hidegoodsprice==0}}">
+                          <icon bindtap="cartaddcart" class="icox icox-offline" data-optiontype="reduce" data-optionid="{{goods.optionid}}" data-goodsid="{{goods.goodsid}}" 
+                          data-id="{{goods.id}}" data-total ="{{goods.total}}"  data-min="{{goods.minbuy}}" ></icon>
+                          <text>{{goods.total}}</text>
+                          <icon bindtap="cartaddcart" class="icox icox-addition_fill" data-add="add" data-optionid="{{goods.optionid}}" data-goodsid="{{goods.goodsid}}" 
+                          data-id="{{goods.id}}" data-maxnum="{{goods.totalmaxbuy}}" data-total ="{{goods.total}}" data-store="{{goods.stock}}"></icon> 
+                        </view>
+                        <view class="addShopCar flex" wx:if="{{goods.hidegoodsprice==1 && goods.level>0}}">
+                          <icon bindtap="cartaddcart" class="icox icox-offline" data-optiontype="reduce" data-optionid="{{goods.optionid}}" data-goodsid="{{goods.goodsid}}" 
+                          data-id="{{goods.id}}" data-total ="{{goods.total}}" data-min="{{goods.minbuy}}"></icon>
+                          <text>{{goods.total}}</text>
+                          <icon bindtap="cartaddcart" class="icox icox-addition_fill" data-add="add" data-goodsid="{{goods.goodsid}}"
+                          data-id="{{goods.id}}" data-maxnum="{{goods.totalmaxbuy}}" data-total ="{{goods.total}}" data-store="{{goods.stock}}"></icon>
+                        </view>
+                        <view  class="addShopCar flex" wx:if="{{goods.hidegoodsprice==1 && 0>=goods.level}}">
+                          <text>仅限会员购买</text>
+                        </view>   	
+                        <view class="money">￥{{goods.marketprice}}</view>
+                    </view>
+                </scroll-view>
+                <view class="tips" wx:if="{{merch.list.length}}">Tips：加入购物车后请尽快下单哦~</view>
+                <view class="shopCar2">
+                    <view bindtap="favorite" class="nav-item favorite-item" wx:if="{{!limits}}">
+                      <view class="icox {{goods.isfavorite?'icox-likefill':'icox-like'}}"></view>
+                      <view class="label">关注</view>
+                    </view>
+                    <view bindtap="favorite" class="nav-item favorite-item {{goods.isfavorite?'active':''}}" 
+                    data-isfavorite="{{goods.isfavorite?1:0}}" wx:if="{{goods.customer!=1&&limits}}">
+                        <view class="icox {{goods.isfavorite?'icox-likefill':'icox-like'}}"></view>
+                        <view class="label">关注</view>
+                    </view>
+                    <button class="nav-item customer-item" openType="contact" sessionFrom="weapp" showMessageCard="true" wx:if="{{goods.customer==1&&limits}}">
+                      <view class="icox icox-customerservice"></view>
+                      <view class="label">客服</view>
+                    </button>
+                    <navigator class="nav-item external" url="/pages/changce/merch/detail?id={{goods.merchid}}&&merchid={{goods.merchid}}">
+                      <view class="icox icox-shop1"></view>
+                      <view class="label">店铺</view>
+                    </navigator>
+                    <view bindtap="shopCarHid" class="nav-item cart-item" id="menucart">
+                      <view class="badge {{cartount<=0?'out':'in'}}" wx:if="{{cartcount&&limits}}">{{cartcount}}</view>
+                      <view class="icox icox-cart1"></view>
+                      <view class="label">购物车</view>
+                    </view>
+                    <view bindtap="selectPicker" class="nav-item btn cartbtn" 
+                      data-buytype="cart" data-id="{{goods.id}}" data-tap="{{active}}" wx:if="{{goods.canAddCart&&goods.type!=9}}">加入购物车</view>
+                  </view>
+              </view>git
+             </view>
+
+
+
+
+
+
+
+            
+
+
+
         </view>
     </view>
     <view class="fui-toast {{FoxUIToast.show?'in':'out'}}">

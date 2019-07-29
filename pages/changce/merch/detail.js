@@ -43,17 +43,13 @@ Page({
       var i = this;
       this.setData({
           merchid: t.id,
-      }), this.getMerch(), this.getList(),
-        a.get("quick/index/getCart", {
-          quickid: ""
-        }, function (t) {
-          var a = [];
-          for (var e in t.simple_list) a[e] = t.simple_list[e];
-          i.setData({
-            numtotal: a,
-            main: t
-          });
-        }), wx.hideLoading(), wx.setNavigationBarTitle({
+      }), 
+      
+      this.getMerch(), this.getList(),
+
+       this.get_cart(), 
+
+        wx.hideLoading(), wx.setNavigationBarTitle({
           title: t.pagetitle
         });
     
@@ -195,18 +191,7 @@ Page({
   getCart: function (t) {
     var i = this;
     c.getCart(t, i);
-    a.get("quick/index/getCart", {
-      quickid: ""
-    }, function (t) {
-      var a = [];
-      for (var e in t.simple_list) a[e] = t.simple_list[e];
-      i.setData({
-        numtotal: a,
-        main: t
-      });
-    }), wx.hideLoading(), wx.setNavigationBarTitle({
-      title: t.pagetitle
-    });
+    this.get_cart();
   },
   select: function () {
     var t = this;
@@ -284,7 +269,6 @@ Page({
     }), this.getList();
   },
   bindFocus: function (t) {
-    console.log(t); 
     "" == b.trim(t.detail.value) && this.setData({
       fromsearch: !0
     });
@@ -308,25 +292,27 @@ Page({
       cartcartArr: [],
       showPicker: !0
     });
-    a.get("quick/index/getCart", {
-      quickid: a
-    }, function (a) {
+    a.get("member/cart/get_cart", {
+      merchid: t.data.merchid,
+    }, function (k) {
+      console.log(k);
+      var merch_list = [];
+      if (k.merch_list.length >0){
+        merch_list = k.merch_list[0];
+      }
       t.setData({
-        main: a
-      });
-      for (var r = [], i = 0; i < a.list.length; i++) r[i] = a.list[i].goodsid;
-      t.setData({
-        tempcartid: r
+        main: k,
+        merch: merch_list
       });
     });
   },
   gopay: function () {
     var e = this;
-    console.log(e.data.limits);
     if (e.data.limits) {
-      var t = 1 == this.data.main.cartdata ? this.data.pageid : "";
-      this.data.main.list.length ? wx.navigateTo({
-        url: "/pages/order/create/index?fromquick=" + t
+      // var t = 1 == e.data.main.cartdata ? this.data.pageid : "";
+      console.log(111)
+      e.data.main.merch_list[0].list.length ? wx.navigateTo({
+        url: "/pages/order/create/index?merchid=" + e.data.main.merch_list[0].merchid
       }) : l.toast(this, "请先添加商品到购物车");
     } else e.setData({
       modelShow: !0
@@ -334,7 +320,6 @@ Page({
   },
   shopCarHid: function () {
     var e = this;
-    console.log(e.data);
     if (e.data.limits) {
       this.setData({
         clickCar: !1,
@@ -345,53 +330,75 @@ Page({
     });
   },
   cartaddcart: function (t) {
-    var b = this, e = 1 == this.data.main.cartdata ? this.data.pageid : "", i = "0" == t.currentTarget.dataset.id ? t.currentTarget.dataset.goodsid : t.currentTarget.dataset.id, o =     t.currentTarget.dataset.add;
-    t.currentTarget.dataset.min == t.currentTarget.dataset.num && "reduce" == o && (o = "delete"),
-      a.get("quick/index/update", {
-        quickid: e,
-        goodsid: t.currentTarget.dataset.goodsid,
-        optionid: "0" == t.currentTarget.dataset.id ? "" : t.currentTarget.dataset.id,
-        update: "",
-        total: "",
-        type: o,
-        typevalue: 1
-      }, function (e) {
-        if (console.log(e), 0 == e.error) {
-          var r = b.data.cartcartArr;
-          r[i] = e.goodsOptionTotal || 0 == e.goodsOptionTotal ? e.goodsOptionTotal : e.goodstotal;
-          var o = b.data.main;
-          o.total = e.total, o.totalprice = e.totalprice;
-          var n = b.data.numtotal;
-          n[t.currentTarget.dataset.goodsid] = e.goodstotal, b.setData({
-            cartcartArr: r,
-            main: o,
-            numtotal: n
+    var e = this;
+    var id = t.currentTarget.dataset.id, optionid = t.currentTarget.dataset.optionid, total = parseInt(t.currentTarget.dataset.total), 
+    optiontype = t.currentTarget.dataset.optiontype;
+    if ("reduce" == optiontype && total != 0 ){
+      total = parseInt(total) - 1;
+    }else{
+      total = parseInt(total) + 1;
+    }
+    if (total == 0){
+      a.get("member/cart/removeById", {
+        id: id,
+      }, function (k) {
+        a.get("member/cart/get_cart", {
+          merchid: e.data.merchid,
+        }, function (k) {
+          var merch_list = [];
+          if (null != k.merch_list && k.merch_list.length > 0) {
+            merch_list = k.merch_list[0];
+          }else{
+            e.shopCarHid();
+          }
+          e.setData({
+            main: k,
+            merch: merch_list
           });
-        } else l.toast(b, e.message);
+        });
       });
+    }else{
+      a.get("member/cart/update", {
+        id: id,
+        optionid: optionid,
+        total: total
+      }, function (k) {
+        a.get("member/cart/get_cart", {
+          merchid: e.data.merchid,
+        }, function (k) {
+          var merch_list = [];
+          if (null != k.merch_list &&  k.merch_list.length > 0) {
+            merch_list = k.merch_list[0];
+            e.setData({
+              main: k,
+              merch: merch_list
+            });
+          }else{
+
+          }
+        });
+      });
+    }
   },
   clearShopCartFn: function (t) {
-    var b = this, e = 1 == this.data.main.cartdata ? this.data.pageid : "";
-    a.get("quick/index/clearCart", {
-      quickid: e
+    var e = this, merchid = this.data.merchid;
+    a.post("member/cart/removeallBymerch", {
+      merchid: merchid
     }, function (t) {
-      console.log(t);
-      var e = b.data.main;
-      console.log(111);
-      console.log(e);
-      e.list=[];
-      e.total = 0;
-      e.totalprice = 0;
-      for (var r = b.data.tempcartid, i = [], s = 0; s < r.length; s++){ 
-        i[Number(r[s])] = -1;
-      }
-      b.setData({
-        main: e,
-        clickCar: !1,
-        numtotal: i,
-        clearcart: !1,
-        showPicker: !1
-      });
+        a.get("member/cart/get_cart", {
+          merchid: merchid,
+        }, function (k) {
+          var merch_list = [];
+          if (null != k.merch_list && k.merch_list.length > 0) {
+            merch_list = k.merch_list[0];
+          } else {
+            e.shopCarHid();
+          }
+          e.setData({
+            main: k,
+            merch: merch_list
+          });
+        })
     });
   },
   cancelclick: function () {
@@ -404,6 +411,19 @@ Page({
       modelShow: !1
     }), wx.openSetting({
       success: function (t) { }
+    });
+  },
+  get_cart: function () {
+    var i = this;
+    a.get("member/cart/get_cart", {
+      merchid: i.data.merchid,
+    }, function (t) {
+      var a = [];
+      for (var e in t.merch_list) a[e] = t.merch_list[e];
+      i.setData({
+        numtotal: a,
+        main: t
+      });
     });
   }
 });

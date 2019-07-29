@@ -17,9 +17,9 @@
         <navigator class="fui-cell edit" data-action="edit" wx:if="{{!edit}}">编辑</navigator>
         <navigator class="fui-cell edit" data-action="complete" wx:if="{{edit}}">完成</navigator>
     </view>
-    <block wx:for="{{merch_list}}">
+    <view wx:for="{{merch_list}}">
         <view class="fui-cell-group fui-cell-click">
-            <navigator class="fui-cell" hoverClass="none" url="/pages/changce/merch/detail?id={{item.merchid}}">
+            <navigator class="fui-cell" hoverClass="none" url="/pages/changce/merch/detail?id={{item.merchid}}&&merchid={{item.merchid}}">
                 <view class="fui-cell-icon">
                     <text class="icox icox-dianpu1"></text>
                 </view>
@@ -31,11 +31,11 @@
             <view class="fui-list noclick">
                 <radio bindtap="selected" checked="{{val.selected==1?true:''}}" class="zoom-80" color="#ff5555" data-id="{{val.id}}" data-select="{{val.selected}}" wx:if="{{!edit}}"></radio>
                 <radio bindtap="edit_list" checked="{{edit_list[val.id]?true:''}}" class="zoom-80" color="#ff5555" data-id="{{val.id}}" wx:if="{{edit}}"></radio>
-                <view bindtap="url" class="fui-list-media" data-url="/pages/goods/detail/index?id={{val.goodsid}}">
+                <view bindtap="url" class="fui-list-media" data-url="/pages/goods/detail/index?id={{val.goodsid}}&&merchid={{item.merchid}}">
                     <image class="" src="{{val.thumb}}"></image>
                 </view>
                 <view class="fui-list-inner">
-                    <navigator bindtap="url" data-url="/pages/goods/detail/index?id={{val.goodsid}}">
+                    <navigator bindtap="url" data-url="/pages/goods/detail/index?id={{val.goodsid}}&&merchid={{item.merchid}}">
                         <view class="text">{{val.title}}</view>
                         <view class="subtitle cart-option" wx:if="{{val.optionid!=0}}">
                             <view class="choose-option">{{val.optiontitle}}</view>
@@ -63,7 +63,19 @@
                 </view>
             </view>
         </view>
-    </block>
+         <view class="fui-cell-group fui-cell-click" style="margin-top: 0rpx">
+           <navigator class="fui-cell" hoverClass="none">
+                <view class="fui-cell-text">合计：¥{{item.merchTotalPrice}}元</view>
+                <view bindtap="edit" class="btns" wx:if="{{item.merchTotalPrice - item.launchdeliveryfee >=0}}">
+                  <text class="btn btn-danger {{total?'':'disabled'}}" data-merhcid="{{item.merchid}}" bindtap="gopay" style="width:200rpx" wx:if="{{!edit}}">去结算</text>
+                </view>
+                <view wx:else>
+                  <text style="font-size: 28rpx">还差{{item.launchdeliveryfee - item.merchTotalPrice}}起送 去凑单</text>
+                </view> 
+                <view class="fui-cell-remark" wx:if="{{item.merchTotalPrice - item.launchdeliveryfee < 0}}"></view>
+            </navigator>
+        </view>
+    </view>
     <view class="fui-cell-group fui-cell-click" wx:if="{{list.length>0}}">
         <navigator class="fui-cell" hoverClass="none">
             <view class="fui-cell-icon">
@@ -123,7 +135,6 @@
             <view bindtap="edit" class="btns">
                 <text class="btn btn-warning {{editischecked?'':'disabled'}}" data-action="move" wx:if="{{edit}}">移到关注</text>
                 <text class="btn btn-danger {{editischecked?'':'disabled'}}" data-action="delete" wx:if="{{edit}}">删除</text>
-                <text class="btn btn-danger {{total?'':'disabled'}}" data-action="pay" style="width:200rpx" wx:if="{{!edit}}">结算({{total}})</text>
             </view>
         </view>
     </view>

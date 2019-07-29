@@ -7,7 +7,11 @@ Page({
         merch_list: !1,
         list: !1,
         edit_list: [],
-        modelShow: !1
+        modelShow: !1,
+        delBtnWidth: 180,
+        cartcount:0,
+        count:0,
+        totalprice:0
     },
     onLoad: function(i) {
         var a = this;
@@ -20,6 +24,14 @@ Page({
                 }
             });
         }), console.log(i), t.url(i);
+        wx.getSystemInfo({
+          success: function (res) {
+            a.setData({
+              windowHeight: res.windowHeight
+            });
+          }
+        });
+      // this.initEleWidth();
     },
     onShow: function() {
         this.get_cart();
@@ -84,10 +96,11 @@ Page({
                 });
                 break;
 
-              case "pay":
-                this.data.total > 0 && wx.navigateTo({
-                    url: "/pages/order/create/index"
-                });
+              // case "pay":
+                console.log(this.data);
+                // this.data.total > 0 && wx.navigateTo({
+                //     url: "/pages/order/create/index"
+                // });
             }
         } else s.setData({
             modelShow: !0
@@ -114,9 +127,9 @@ Page({
     },
     number: function(t) {
         var a = this, s = e.pdata(t), c = i.number(this, t), o = s.id, l = s.optionid;
-      console.log(o);
-      console.log(l);
-      console.log(c);
+      console.log("o"+o);
+      console.log("l"+s.value);
+      console.log("c"+c);
         1 == c && 1 == s.value && "minus" == t.target.dataset.action || s.value == s.max && "plus" == t.target.dataset.action || e.post("member/cart/update", {
             id: o,
             optionid: l,
@@ -204,5 +217,101 @@ Page({
         t.globalDataClose.flag = !0, wx.reLaunch({
             url: "/pages/index/index"
         });
-    }
+    },
+    gopay: function (e) {
+    var merchid = e.currentTarget.dataset.merhcid;
+      console.log(111111111111111111);
+      console.log(merchid);
+      wx.navigateTo({
+        url: "/pages/order/create/index?merchid=" + merchid
+      });
+    } 
+  // touchS: function (e) {
+  //   if (e.touches.length == 1) {
+  //     this.setData({
+  //       //设置触摸起始点水平方向位置
+  //       startX: e.touches[0].clientX
+  //     });
+  //   }
+  // },
+  // touchM: function (e) {
+  //   if (e.touches.length == 1) {
+  //     //手指移动时水平方向位置
+  //     var moveX = e.touches[0].clientX;
+  //     //手指起始点位置与移动期间的差值
+  //     var disX = this.data.startX - moveX;
+  //     var delBtnWidth = this.data.delBtnWidth;
+  //     var txtStyle = "";
+  //     if (disX == 0 || disX < 0) {//如果移动距离小于等于0，文本层位置不变
+  //       txtStyle = "left:0px";
+  //     } else if (disX > 0) {//移动距离大于0，文本层left值等于手指移动距离
+  //       txtStyle = "left:-" + disX + "px";
+  //       if (disX >= delBtnWidth) {
+  //         //控制手指移动距离最大值为删除按钮的宽度
+  //         txtStyle = "left:-" + delBtnWidth + "px";
+  //       }
+  //     }
+  //     //获取手指触摸的是哪一项
+  //     this.data.merch_list[e.currentTarget.dataset.index].list[e.currentTarget.dataset.itemIndex]
+  //     .txtStyle = txtStyle;
+  //     //更新列表的状态
+  //     this.setData({
+  //       merch_list: this.data.merch_list
+  //     });
+  //   }
+  // },
+
+  // touchE: function (e) {
+  //   if (e.changedTouches.length == 1) {
+  //     //手指移动结束后水平位置
+  //     var endX = e.changedTouches[0].clientX;
+  //     //触摸开始与结束，手指移动的距离
+  //     var disX = this.data.startX - endX;
+  //     var delBtnWidth = this.data.delBtnWidth;
+  //     //如果距离小于删除按钮的1/2，不显示删除按钮
+  //     var txtStyle = disX > delBtnWidth / 2 ? "left:-" + delBtnWidth + "px" : "left:0px";
+  //     //获取手指触摸的是哪一项
+  //     this.data.merch_list[e.currentTarget.dataset.index].list[e.currentTarget.dataset.itemIndex]
+  //       .txtStyle = txtStyle;
+  //     //更新列表的状态
+  //     this.setData({
+  //       merch_list: this.data.merch_list
+  //     });
+  //   }
+  // },
+  // //获取元素自适应后的实际宽度
+  // getEleWidth: function (w) {
+  //   var real = 0;
+  //   try {
+  //     var res = wx.getSystemInfoSync().windowWidth;
+  //     var scale = (750 / 2) / (w / 2);//以宽度750px设计稿做宽度的自适应
+  //     // console.log(scale);
+  //     real = Math.floor(res / scale);
+  //     return real;
+  //   } catch (e) {
+  //     return false;
+  //     // Do something when catch error
+  //   }
+  // },
+  // initEleWidth: function () {
+  //   var delBtnWidth = this.getEleWidth(this.data.delBtnWidth);
+  //   this.setData({
+  //     delBtnWidth: delBtnWidth
+  //   });
+  // },
+  // //点击删除按钮事件
+  // delItem: function (e) {
+  //   //获取列表中要删除项的下标
+  //   var itemIndex = e.currentTarget.dataset.itemIndex;
+  //   //移除列表中下标为index的项
+  //   var index = e.currentTarget.dataset.index;
+  //   var merch_list_item = this.data.merch_list[index].list;
+
+
+  //   merch_list_item.splice(itemIndex, 1);
+  //   //更新列表的状态
+  //   this.setData({
+  //     merch_list: this.data.merch_list
+  //   });
+  // }
 });

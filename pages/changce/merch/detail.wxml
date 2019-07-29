@@ -60,11 +60,11 @@
     </view>
     <view class="fui-goods-group {{listmode}}">
         <view class="fui-goods-item" wx:for="{{list}}">
-            <navigator hoverClass="none" url="/pages/goods/detail/index?id={{item.id}}">
+            <navigator hoverClass="none" url="/pages/goods/detail/index?id={{item.id}}&&merchid={{merchid}}">
                 <view class="image" style="background-image:url({{item.thumb}})"></view>
             </navigator>
             <view class="detail">
-                <navigator hoverClass="none" url="/pages/goods/detail/index?id={{item.id}}">
+                <navigator hoverClass="none" url="/pages/goods/detail/index?id={{item.id}}&&merchid={{merchid}}">
                     <view class="name">{{item.title}} </view>
                 </navigator>
                 <view class="price">
@@ -103,60 +103,69 @@
     </view>
 </view>
 <view class="shopCar2 footercart">
-    <view bindtap="shopCarList" class="carIcon">
+    <view bindtap="shopCarList" class="carIcon" wx:if="{{main.total > 0}}">
         <icon class="shopCarImg icox icox-cartfill"></icon>
-        <i wx:if="{{main.total}}">{{main.total}}</i>
+        <i wx:if="{{main.total > 0}}">{{main.total}}</i>
     </view>
-    <view class="total">
+     <view class="carIcon" wx:else>
+        <icon class="shopCarImg icox icox-cartfill"></icon>
+        <i wx:if="{{main.total > 0}}">{{main.total}}</i>
+    </view>
+    <view class="total" wx:if="{{main.total > 0}}">
         <view>￥{{main.totalprice}}</view>
-        <view>优惠信息请至结算页面查看</view>
     </view>
-    <view bindtap="gopay">去结算</view>
+    <view class="total" wx:else ><view>还未选购商品</view></view>
+    <view style="background: #808083;" wx:if="{{main.total == 0}}">{{main.merch_user.launchdeliveryfee}}元起送</view>
+    <view style="background: #808083;" wx:elif="{{main.total > 0 && (main.merch_user.launchdeliveryfee - main.totalprice) >0}}">差{{main.merch_user.launchdeliveryfee - main.totalprice}}元起送</view>
+    <view bindtap="gopay" wx:elif="{{main.total > 0 && 0>= (main.merch_user.launchdeliveryfee - main.totalprice)}}}}">去结算</view>
 </view>
-<view class="{{clickCar?'shopCarList':'shopCarList displayNo'}}">
-    <view bindtap="shopCarHid" style="flex:1"></view>
-    <view>
+
+    <view class="{{clickCar?'shopCarList':'shopCarList displayNo'}}">
+      <view bindtap="shopCarHid" style="flex:1"></view>
+      <view>
         <view class="flex scListTit">
             <text>购物车</text>
             <text bindtap="clearShopCartFn">清空</text>
         </view>
         <scroll-view scrollY class="footerList">
-            <view class="carList" wx:if="{{cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]!=0}}" wx:for="{{main.list}}" wx:for-item="goods" wx:key="unique">
+            <view class="carList" wx:if="{{merch.list.length}}" wx:for="{{merch.list}}" wx:for-item="goods" wx:key="unique">
                 <view class="goodsMsg">
                     <view>{{goods.title}}</view>
                     <view>{{goods.optiontitle?goods.optiontitle:''}}</view>
                 </view>
                 <view class="addShopCar flex" wx:if="{{goods.hidegoodsprice==0}}">
-                    <icon bindtap="cartaddcart" class="icox icox-offline" data-add="reduce" data-goodsid="{{goods.goodsid}}" data-id="{{goods.optionid}}" data-min="{{goods.minbuy}}"     
-                    data-num="{{cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]>0?cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]:goods.total}}"></icon>
-                    <text>{{cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]>0?cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]:goods.total}}</text>
-                    <icon bindtap="cartaddcart" class="icox icox-addition_fill" data-add="add" data-goodsid="{{goods.goodsid}}" data-id="{{goods.optionid}}" data-maxnum="{{goods.maxbuy}}                     "data-store="{{goods.stock}}"></icon>
+                  <icon bindtap="cartaddcart" class="icox icox-offline" data-optiontype="reduce" data-optionid="{{goods.optionid}}" data-goodsid="{{goods.goodsid}}" 
+                  data-id="{{goods.id}}" data-total ="{{goods.total}}"  data-min="{{goods.minbuy}}" ></icon>
+                  <text>{{goods.total}}</text>
+                  <icon bindtap="cartaddcart" class="icox icox-addition_fill" data-add="add" data-optionid="{{goods.optionid}}" data-goodsid="{{goods.goodsid}}" 
+                  data-id="{{goods.id}}" data-maxnum="{{goods.totalmaxbuy}}" data-total ="{{goods.total}}" data-store="{{goods.stock}}"></icon> 
                 </view>
                 <view class="addShopCar flex" wx:if="{{goods.hidegoodsprice==1 && goods.level>0}}">
-                    <icon bindtap="cartaddcart" class="icox icox-offline" data-add="reduce" data-goodsid="{{goods.goodsid}}" data-id="{{goods.optionid}}" data-min="{{goods.minbuy}}"     
-                    data-num="{{cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]>0?cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]:goods.total}}"></icon>
-                    <text>{{cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]>0?cartcartArr[goods.optionid=='0'?goods.goodsid:goods.optionid]:goods.total}}</text>
-                    <icon bindtap="cartaddcart" class="icox icox-addition_fill" data-add="add" data-goodsid="{{goods.goodsid}}" data-id="{{goods.optionid}}" data-maxnum="{{goods.maxbuy}}                     "data-store="{{goods.stock}}"></icon>
+                   <icon bindtap="cartaddcart" class="icox icox-offline" data-optiontype="reduce" data-optionid="{{goods.optionid}}" data-goodsid="{{goods.goodsid}}" 
+                   data-id="{{goods.id}}" data-total ="{{goods.total}}" data-min="{{goods.minbuy}}"></icon>
+                  <text>{{goods.total}}</text>
+                   <icon bindtap="cartaddcart" class="icox icox-addition_fill" data-add="add" data-goodsid="{{goods.goodsid}}"
+                   data-id="{{goods.id}}" data-maxnum="{{goods.totalmaxbuy}}" data-total ="{{goods.total}}" data-store="{{goods.stock}}"></icon>
                 </view>
-
-                  <view  class="addShopCar flex" wx:if="{{goods.hidegoodsprice==1 && 0>=goods.level}}">
-                    <text>仅限会员购买</text>
-					        </view>   	
+                <view  class="addShopCar flex" wx:if="{{goods.hidegoodsprice==1 && 0>=goods.level}}">
+                  <text>仅限会员购买</text>
+                </view>   	
                 <view class="money">￥{{goods.marketprice}}</view>
             </view>
-            <text class="noGoods" wx:if="{{!main.list.length}}">暂时没有商品喔~</text>
         </scroll-view>
-        <view class="tips" wx:if="{{main.list.length}}">Tips：加入购物车后请尽快下单哦~</view>
+        <view class="tips" wx:if="{{merch.list.length}}">Tips：加入购物车后请尽快下单哦~</view>
         <view class="shopCar2">
             <view bindtap="shopCarHid" class="carIcon">
                 <icon class="shopCarImg icox icox-cartfill"></icon>
-                <i wx:if="{{main.list.length}}">{{main.total}}</i>
+                <i wx:if="{{main.total > 0}}">{{main.total}}</i>
             </view>
-            <view class="total">
+            <view class="total" wx:if="{{main.total > 0}}">
                 <view>￥{{main.totalprice}}</view>
-                <view>优惠信息请至结算页面查看</view>
             </view>
-            <view bindtap="gopay">去结算</view>
+            <view class="total" wx:else><view>还未选购商品</view></view>
+            <view style="background: #808083;" wx:if="{{main.total == 0}}">{{main.merch_user.launchdeliveryfee}}元起送</view>
+            <view style="background: #808083;" wx:elif="{{main.total > 0 && (main.merch_user.launchdeliveryfee - main.totalprice) >0}}">差{{main.merch_user.launchdeliveryfee - main.totalprice}}元起送</view>
+            <view bindtap="gopay" wx:elif="{{main.total > 0 && 0>= (main.merch_user.launchdeliveryfee - main.totalprice)}}}}">去结算</view>
         </view>
     </view>
 </view>
