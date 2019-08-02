@@ -220,8 +220,6 @@ Page({
     },
     gopay: function (e) {
     var merchid = e.currentTarget.dataset.merhcid;
-      console.log(111111111111111111);
-      console.log(merchid);
       wx.navigateTo({
         url: "/pages/order/create/index?merchid=" + merchid
       });
